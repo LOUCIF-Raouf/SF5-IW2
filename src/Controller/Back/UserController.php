@@ -4,6 +4,7 @@ namespace App\Controller\Back;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,15 +18,26 @@ class UserController extends AbstractController
     /**
      * @Route("/", name="index", methods={"GET"})
      */
-    public function index(): Response
+    public function index(UserRepository $userRepository): Response
     {
-        $users = $this->getDoctrine()
-            ->getRepository(User::class)
-            ->findAll();
-
         return $this->render('back/user/index.html.twig', [
-            'users' => $users,
+            'users' => $userRepository->findBy([], [
+                'position' => 'DESC'
+            ]),
         ]);
+    }
+
+    /**
+     * @Route("/move/{slug}/{move}", name="move", requirements={"move": "up|down"})
+     */
+    public function move(User $user, $move)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $newPosition = ($move == 'up') ? $user->getPosition()+1 : $user->getPosition()-1;
+        $user->setPosition($newPosition);
+        $em->flush();
+
+        return $this->redirectToRoute('back_user_index');
     }
 
     /**
@@ -52,7 +64,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="show", methods={"GET"})
+     * @Route("/{slug}", name="show", methods={"GET"})
      */
     public function show(User $user): Response
     {
@@ -62,7 +74,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="edit", methods={"GET", "POST"})
+     * @Route("/{slug}/edit", name="edit", methods={"GET", "POST"})
      */
     public function edit(Request $request, User $user): Response
     {
@@ -81,7 +93,7 @@ class UserController extends AbstractController
         ]);
     }
     /**
-     * @Route("/{id}/delete", name="delete", methods={"GET"})
+     * @Route("/{slug}/delete", name="delete", methods={"GET"})
      */
     public function delete(Request $request, User $user): Response
     {

@@ -1,18 +1,18 @@
 {% extends 'back.html.twig' %}
 
-{% block title %}Edit User{% endblock %}
+{% block title %}Edit Article{% endblock %}
 
 {% block body %}
-    <h1>Edit User</h1>
+    <h1>Edit Article</h1>
 
     {{ form_start(form) }}
     {{ form_widget(form) }}
     <button class="btn">{{ 'form.save'|trans }}</button>
     {{ form_end(form) }}
 
-    <a href="{{ path('back_user_index') }}">back to list</a>
+    <a href="{{ path('back_article_index') }}">back to list</a>
 
-    <a href="{{ path('back_user_delete', {'slug': user.slug, '_token': csrf_token('delete' ~ user.id)}) }}">delete</a>
+    <a href="{{ path('back_article_delete', {'id': article.id, '_token': csrf_token('delete' ~ article.id)}) }}">delete</a>
 {% endblock %}
 
 {% block javascripts %}

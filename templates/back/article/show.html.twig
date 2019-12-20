@@ -1,0 +1,28 @@
+{% extends 'back.html.twig' %}
+
+{% block title %}Article{% endblock %}
+
+{% block breadcrumb %}
+    <a href="#!" class="breadcrumb">Show article</a>
+{% endblock %}
+
+{% block body %}
+    <h1>Article</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ article.id }}</td>
+            </tr>
+            <tr>
+                <th>name</th>
+                <td>{{ article.name }}</td>
+            </tr>
+            <tr>
+                <th>description</th>
+                <td>{{ article.description|raw }}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}

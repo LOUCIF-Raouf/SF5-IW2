@@ -1,0 +1,32 @@
+{% extends 'back.html.twig' %}
+
+{% block title %}Article index{% endblock %}
+
+{% block body %}
+    <h1>Article index</h1>
+
+    {% embed 'embed/_table.html.twig' %}
+        {% block head %}
+            <th>Id</th>
+            <th>Name</th>
+        {% endblock %}
+        {% block body %}
+            {% for article in articles %}
+                <tr>
+                    <td>{{ article.id }}</td>
+                    <td>{{ article.name|capitalize }}</td>
+                    <td>
+                        <a href="{{ path('back_article_show', {'id': article.id}) }}">show</a>
+                        <a href="{{ path('back_article_edit', {'id': article.id}) }}">edit</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">no records found</td>
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+
+    <a href="{{ path('back_article_new') }}">Create new</a>
+{% endblock %}

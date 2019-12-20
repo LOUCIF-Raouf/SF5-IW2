@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
+use App\Entity\Traits\SortablePositionTrait;
+use App\Entity\Traits\TimestampableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -16,6 +19,9 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class User
 {
     const GENDER = ['male' => 'm', 'femelle' => 'f', 'other' => 'o'];
+
+    use TimestampableTrait;
+    use SortablePositionTrait;
 
     /**
      * @ORM\Id()
@@ -37,11 +43,13 @@ class User
     private $firstname;
 
     /**
+     * @ORM\Column(type="string", unique=true)
+     * @Gedmo\Slug(fields={"lastname", "firstname"})
+     */
+    private $slug;
+
+    /**
      * @ORM\Column(type="datetimetz", nullable=true)
-     * @Assert\Range(
-     *      min = "-18 years",
-     *      max = "-100 years"
-     * )
      */
     private $birthday;
 
@@ -69,7 +77,7 @@ class User
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Assert\Image(maxSize="2M", mimeTypes={"image/jpeg", "image/png"}, maxHeight="500")
+     * @Assert\Image(maxSize="2M", mimeTypes={"imèage/jpeg", "image/png"}, maxHeight="500")
      */
     private $avatar;
 
@@ -231,6 +239,24 @@ class User
     {
         $this->avatar = $avatar;
 
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param mixed $slug
+     * @return User
+     */
+    public function setSlug(string $slug): ?self
+    {
+        $this->slug = $slug;
         return $this;
     }
 }

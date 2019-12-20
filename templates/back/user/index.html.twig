@@ -11,6 +11,7 @@
             <th>Lastname</th>
             <th>Firstname</th>
             <th>Birthday</th>
+            <th>move</th>
             <th>actions</th>
         {% endblock %}
         {% block body %}
@@ -21,8 +22,12 @@
                     <td>{{ user.firstname }}</td>
                     <td>{{ user.birthday ? user.birthday|date('Y-m-d') : '' }}</td>
                     <td>
-                        <a href="{{ path('back_user_show', {'id': user.id}) }}">show</a>
-                        <a href="{{ path('back_user_edit', {'id': user.id}) }}">edit</a>
+                        <a href="{{ path('back_user_move', {'slug': user.slug, 'move': 'up'}) }}">UP</a>
+                        <a href="{{ path('back_user_move', {'slug': user.slug, 'move': 'down'}) }}">DOWN</a>
+                    </td>
+                    <td>
+                        <a href="{{ path('back_user_show', {'slug': user.slug}) }}">show</a>
+                        <a href="{{ path('back_user_edit', {'slug': user.slug}) }}">edit</a>
                     </td>
                 </tr>
             {% else %}

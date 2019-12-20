@@ -1,0 +1,103 @@
+{%- block app_quill_js_row -%}
+    <div class="row">
+        <div id="{{ id }}_container" {% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+    </div>
+{%- endblock app_quill_js_row -%}
+
+{%- block app_quill_js_label -%}
+    {{ form_errors(form) }}
+    <label for="{{ id }}">
+        {% if label is empty -%}
+            {%- if label_format is not empty -%}
+                {% set label = label_format|replace({
+                    '%name%': name,
+                    '%id%': id,
+                }) %}
+            {%- else -%}
+                {% set label = name|humanize %}
+            {%- endif -%}
+        {%- endif -%}
+        {{ label|trans }}
+    </label>
+
+{%- endblock app_quill_js_label -%}
+
+{%- block app_quill_js_widget -%}
+    <input type="hidden" {{ block('widget_attributes') }}{% if value is not empty %} value="{{ value }}"{% endif %}/>
+    <div id="{{ id }}_quilljs_body" data-quilljs-editable="{{ id }}">
+        {% if value is not empty %}{{ value|raw }}{% endif %}
+    </div>
+    <script type="text/javascript">
+        if (window.QuillProviderToLoad === undefined) {
+            window.QuillProviderToLoad = [];
+        }
+
+        var QuillProvider = function () {
+            if (window.QuillActivatedEditor === undefined) {
+                window.QuillActivatedEditor = [];
+            }
+
+            var
+                container = document.getElementById('{{ id }}_container'),
+                editableBody = document.getElementById('{{ id }}_quilljs_body'),
+                editor = new Quill(editableBody, {
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{'list': 'bullet'}, 'blockquote'],
+                            [{'align': ''}, {'align': 'center'}, {'align': 'right'}, {'align': 'justify'}],
+                            ['image', 'video', 'link'],
+                            ['clean']
+                        ]
+                    },
+                    theme: 'snow',
+                }),
+
+                editorChange = function () {
+                    var containerId = this.id, inputId = containerId.replace('_container', ''),
+                        input = document.getElementById(inputId);
+                    input.value = window.QuillActivatedEditor[containerId].editor.root.innerHTML;
+                    var event = document.createEvent('Event');
+                    event.initEvent('change', true, true);
+                    input.dispatchEvent(event);
+                }
+            ;
+
+            editor.on('text-change', editorChange.bind(container));
+
+            editor.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
+                delta.ops = delta.ops.map(op => {
+                    return {
+                        insert: op.insert
+                    }
+                });
+                return delta;
+            });
+
+            window.QuillActivatedEditor['{{ id }}_container'] = {editor: editor, container: container};
+        };
+
+        if (typeof Quill === 'undefined') {
+            window.QuillProviderToLoad.push(QuillProvider);
+            if (window.QuillProviderToLoad.length === 1) {
+                var link = document.createElement('link');
+                link.href = '//cdn.quilljs.com/1.0.0/quill.snow.css';
+                link.rel = 'stylesheet';
+                document.head.appendChild(link);
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = '//cdn.quilljs.com/1.0.0/quill.min.js';
+                script.onload = function () {
+                    for (var i = 0; i < window.QuillProviderToLoad.length; i++) {
+                        window.QuillProviderToLoad[i]();
+                    }
+                };
+                document.head.appendChild(script);
+            }
+        } else {
+            QuillProvider();
+        }
+    </script>
+{%- endblock app_quill_js_widget -%}
