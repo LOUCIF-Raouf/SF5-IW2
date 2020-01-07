@@ -7,6 +7,7 @@ use App\Entity\Traits\TimestampableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -16,7 +17,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @UniqueEntity("email")
  * @ORM\Table(name="user_account", schema="iw2")
  */
-class User
+class User implements UserInterface
 {
     const GENDER = ['male' => 'm', 'femelle' => 'f', 'other' => 'o'];
 
@@ -54,10 +55,20 @@ class User
     private $birthday;
 
     /**
-     * @ORM\Column(type="string", length=50, options={"default" : "test@test.com"})
-     * @Assert\Email()
+     * @ORM\Column(type="string", length=180, unique=true)
      */
     private $email;
+
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
+
+    /**
+     * @var string The hashed password
+     * @ORM\Column(type="string")
+     */
+    private $password;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Article", mappedBy="createdBy", orphanRemoval=true)
@@ -71,11 +82,6 @@ class User
     private $gender;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $password;
-
-    /**
      * @ORM\Column(type="text", nullable=true)
      * @Assert\Image(maxSize="2M", mimeTypes={"imèage/jpeg", "image/png"}, maxHeight="500")
      */
@@ -86,21 +92,112 @@ class User
         $this->articles = new ArrayCollection();
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param mixed $id
-     * @return User
-     */
-    public function setId($id)
+    public function getEmail(): ?string
     {
-        $this->id = $id;
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUsername(): string
+    {
+        return (string) $this->email;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getPassword(): string
+    {
+        return (string) $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getSalt()
+    {
+        // not needed when using the "bcrypt" algorithm in security.yaml
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection|Article[]
+     */
+    public function getArticles(): Collection
+    {
+        return $this->articles;
+    }
+
+    public function addArticle(Article $article): self
+    {
+        if (!$this->articles->contains($article)) {
+            $this->articles[] = $article;
+            $article->setCreatedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArticle(Article $article): self
+    {
+        if ($this->articles->contains($article)) {
+            $this->articles->removeElement($article);
+            // set the owning side to null (unless already changed)
+            if ($article->getCreatedBy() === $this) {
+                $article->setCreatedBy(null);
+            }
+        }
+
         return $this;
     }
 
@@ -143,6 +240,24 @@ class User
     /**
      * @return mixed
      */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param mixed $slug
+     * @return User
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getBirthday()
     {
         return $this->birthday;
@@ -158,105 +273,44 @@ class User
         return $this;
     }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
     /**
-     * @return Collection|Article[]
+     * @return mixed
      */
-    public function getArticles(): Collection
-    {
-        return $this->articles;
-    }
-
-    public function addArticle(Article $article): self
-    {
-        if (!$this->articles->contains($article)) {
-            $this->articles[] = $article;
-            $article->setCreatedBy($this);
-        }
-
-        return $this;
-    }
-
-    public function removeArticle(Article $article): self
-    {
-        if ($this->articles->contains($article)) {
-            $this->articles->removeElement($article);
-            // set the owning side to null (unless already changed)
-            if ($article->getCreatedBy() === $this) {
-                $article->setCreatedBy(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getGender(): ?string
+    public function getGender()
     {
         return $this->gender;
     }
 
-    public function setGender(string $gender): self
+    /**
+     * @param mixed $gender
+     * @return User
+     */
+    public function setGender($gender)
     {
         $this->gender = $gender;
-
-        return $this;
-    }
-
-    public function getFullName()
-    {
-        return $this->lastname . ' ' . $this->firstname;
-    }
-
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): self
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    public function getAvatar(): ?string
-    {
-        return $this->avatar;
-    }
-
-    public function setAvatar(?string $avatar): self
-    {
-        $this->avatar = $avatar;
-
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getSlug(): ?string
+    public function getAvatar()
     {
-        return $this->slug;
+        return $this->avatar;
     }
 
     /**
-     * @param mixed $slug
+     * @param mixed $avatar
      * @return User
      */
-    public function setSlug(string $slug): ?self
+    public function setAvatar($avatar)
     {
-        $this->slug = $slug;
+        $this->avatar = $avatar;
         return $this;
+    }
+
+    public function getFullName()
+    {
+        return $this->getFirstname() . ' ' . $this->getLastname();
     }
 }

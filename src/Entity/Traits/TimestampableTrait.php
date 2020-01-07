@@ -2,6 +2,7 @@
 
 namespace App\Entity\Traits;
 
+use App\Entity\User;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 trait TimestampableTrait
@@ -21,6 +22,22 @@ trait TimestampableTrait
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
+
+    /**
+     * @var User $created
+     *
+     * @Gedmo\Blameable(on="create")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     */
+    private $createdBy;
+
+    /**
+     * @var User $updated
+     *
+     * @Gedmo\Blameable(on="update")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     */
+    private $updatedBy;
 
     /**
      * @return \DateTime
@@ -55,6 +72,42 @@ trait TimestampableTrait
     public function setUpdatedAt(\DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getCreatedBy(): User
+    {
+        return $this->createdBy;
+    }
+
+    /**
+     * @param User $createdBy
+     * @return TimestampableTrait
+     */
+    public function setCreatedBy(User $createdBy): self
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUpdatedBy(): User
+    {
+        return $this->updatedBy;
+    }
+
+    /**
+     * @param User $updatedBy
+     * @return TimestampableTrait
+     */
+    public function setUpdatedBy(User $updatedBy): self
+    {
+        $this->updatedBy = $updatedBy;
         return $this;
     }
 }

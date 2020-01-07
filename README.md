@@ -1,4 +1,4 @@
-# Projet IW3
+# Projet IW2
 
 ## Features 
 - Entity (Relation)
@@ -12,6 +12,10 @@
 - Gedmo (sluggable, timestampable, sortable)
 - Fixtures
 - Webpack Encore 
+- Auth
+- Service Mailer
+- FlashMessage
+- Service Custom
 
 ## Installation
 ``docker-compose up -d``
@@ -22,6 +26,6 @@
 
 ``yarn dev``
 
-``yarn watch``
+``yarn watch`` 
 
 Vous pouvez vous connecter sur le site : http://localhost:8080/
