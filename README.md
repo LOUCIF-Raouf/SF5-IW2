@@ -48,6 +48,13 @@ https://symfony.com/doc/current/controller.html#flash-messages
 - Service Custom
 https://symfony.com/doc/current/service_container.html
 
+- Listener Doctrine
+https://symfony.com/doc/current/doctrine/events.html
+https://www.doctrine-project.org/projects/doctrine-orm/en/2.6/reference/events.html#lifecycle-events
+- Listener Kernel
+https://symfony.com/doc/current/event_dispatcher.html
+https://symfony.com/doc/current/reference/events.html
+
 ## Installation
 ``docker-compose up -d``
 

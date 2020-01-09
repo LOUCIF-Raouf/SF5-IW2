@@ -37,7 +37,7 @@ class UserType extends AbstractType
         ;
 
         if ($options['password']) {
-            $builder ->add('password', RepeatedType::class, [
+            $builder->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match.',
                 'first_options'  => ['label' => 'Password'],

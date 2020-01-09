@@ -71,6 +71,11 @@ class User implements UserInterface
     private $password;
 
     /**
+     * @var string plainPassword
+     */
+    private $plainPassword;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Article", mappedBy="createdBy", orphanRemoval=true)
      */
     private $articles;
@@ -306,6 +311,24 @@ class User implements UserInterface
     public function setAvatar($avatar)
     {
         $this->avatar = $avatar;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlainPassword():? string
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param string $plainPassword
+     * @return User
+     */
+    public function setPlainPassword(string $plainPassword):? User
+    {
+        $this->plainPassword = $plainPassword;
         return $this;
     }
 
